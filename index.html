@@ -494,29 +494,50 @@
   </footer>
 
   <script>
-    // Hire Me Form → Google Prefill Redirect
-    const hireForm = document.getElementById("hireForm");
-
-    if (hireForm) {
-      hireForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const name = encodeURIComponent(document.getElementById("name").value);
-        const email = encodeURIComponent(document.getElementById("email").value);
-        const message = encodeURIComponent(document.getElementById("message").value);
-
-        const formURL =
-          "https://docs.google.com/forms/d/e/1FAIpQLSfbTf34IrtP-p38JWBCqgRB6XRgkkZvTfcmyMbCVehzctQmZw/viewform?usp=pp_url" +
-          "&entry.1469290636=" + name +
-          "&entry.130302889=" + email +
-          "&entry.1774568564=" + message;
-
-        window.open(formURL, "_blank");
-
-        hireForm.reset();
+    const form = document.querySelector('.contact__form');
+  
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // Stops the page from reloading/flickering
+  
+      // Change the button text to show it is processing
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = 'Sending...';
+      submitBtn.disabled = true;
+  
+      // Collect data from your exact HTML element IDs
+      const formData = {
+        name: document.querySelector('#name').value,
+        email: document.querySelector('#email').value,
+        message: document.querySelector('#message').value
+      };
+  
+      // Replace the URL placeholder below with your real Google Web App URL
+      const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzFB2X6FUNK7PRGGxcjbwpD93Bei9DK0qC_bTZ4eOrGelDmDLB8s4VqVFyrtN0sKIJW/exec';
+  
+      fetch(googleScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors', // Bypasses CORS browser blocks
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(() => {
+        alert('Thank you! Your message has been sent.');
+        form.reset(); // Clears the form fields
+      })
+      .catch(error => {
+        console.error('Error!', error.message);
+        alert('Something went wrong. Please try again.');
+      })
+      .finally(() => {
+        // Restore button status
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
       });
-    }
-
+    });
+    
     // Set current year
     document.getElementById("year").textContent = new Date().getFullYear();
 
